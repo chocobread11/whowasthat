@@ -1,10 +1,9 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
 import { getDb } from "@/lib/db";
-
+import Link from "next/link";
 
 export default function Home() {
-
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -61,14 +60,21 @@ async function handleFileChange(
         + Add Photo
       </button>
 
-        <div className="mt-6 grid grid-cols-3 gap-2">
-      {photos.map(photo => (
-      <img
-      key={photo.id}
-      src={URL.createObjectURL(photo.image)}
-      className="aspect-square object-cover rounded"
-    />
-  ))}
+      <div className="mt-6 grid grid-cols-3 gap-2">
+        {photos.map(photo => (
+        <Link
+        key={photo.id}
+        href={`/photo/${photo.id}`}
+        >
+        <img
+          src={URL.createObjectURL(photo.image)}
+          className="
+            aspect-square object-cover rounded
+            cursor-pointer hover:opacity-80
+          "
+        />
+        </Link>
+        ))}
       </div>
     </main>
   );
