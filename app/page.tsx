@@ -2,10 +2,11 @@
 import { useRef, useState, useEffect } from "react";
 import { getDb } from "@/lib/db";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const inputRef = useRef<HTMLInputElement | null>(null);
-
+  const router = useRouter();
   const [photos, setPhotos] = useState<any[]>([]);
 
   async function compressImage(
@@ -20,7 +21,6 @@ export default function Home() {
       img.onload = () => {
         let { width, height } = img;
 
-        // Resize logic
         if (width > height && width > maxSize) {
           height = Math.round((height * maxSize) / width);
           width = maxSize;
@@ -36,7 +36,7 @@ export default function Home() {
         const ctx = canvas.getContext("2d");
         if (!ctx) {
           URL.revokeObjectURL(url);
-          reject("No canvas context");
+          reject("Canvas context failed");
           return;
         }
 
@@ -45,12 +45,10 @@ export default function Home() {
         canvas.toBlob(
           (blob) => {
             URL.revokeObjectURL(url);
-
             if (!blob) {
-              reject("Compression failed (blob is null)");
+              reject("Compression failed");
               return;
             }
-
             resolve(blob);
           },
           "image/jpeg",
@@ -68,10 +66,11 @@ export default function Home() {
   }
 
   async function loadPhotos() {
-    const database = await getDb();
-    const allPhotos = await database.getAll("photos");
+    const db = await getDb();
+    const allPhotos = await db.getAll("photos");
     setPhotos(allPhotos);
   }
+
   useEffect(() => {
     loadPhotos();
   }, []);
@@ -80,32 +79,32 @@ export default function Home() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    console.log("Original size:", (file.size / 1024 / 1024).toFixed(2), "MB");
-
-    let compressedBlob: Blob;
+    let compressed: Blob;
 
     try {
-      compressedBlob = await compressImage(file);
+      compressed = await compressImage(file);
     } catch (err) {
-      console.error("Compression failed:", err);
+      console.error(err);
       alert("Failed to process image");
       return;
     }
 
-    console.log(
-      "Compressed size:",
-      (compressedBlob.size / 1024).toFixed(1),
-      "KB"
-    );
+    const id = crypto.randomUUID();
+    const db = await getDb();
 
-    const database = await getDb();
-    await database.put("photos", {
-      id: crypto.randomUUID(),
-      image: compressedBlob,
+    await db.put("photos", {
+      id,
+      image: compressed,
       createdAt: Date.now(),
     });
 
-    loadPhotos();
+    // Safari-safe: reset input
+    e.target.value = "";
+
+    // Safari-safe: slight delay before navigation
+    setTimeout(() => {
+      router.push(`/photo/${id}`);
+    }, 50);
   }
 
   return (
