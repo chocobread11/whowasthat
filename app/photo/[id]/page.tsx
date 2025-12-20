@@ -137,8 +137,8 @@ export default function PhotoPage() {
         const y = tag.y * canvas.height;
 
         // 🔹 Scale based on image size
-        const fontSize = Math.max(24, canvas.width * 0.06);
-        const padding = fontSize * 0.8;
+        const fontSize = Math.max(24, canvas.width * 0.04);
+        const padding = fontSize * 0.6;
         const dotRadius = fontSize * 0.4;
 
         // 🔹 Dot
@@ -196,36 +196,48 @@ export default function PhotoPage() {
 
   return (
     <main className="relative h-screen bg-black flex items-center justify-center">
-      <button
-        onClick={() => router.back()}
-        className="
-    pointer-events-auto
-    absolute top-4 left-4
-    bg-black/80 text-white
-    px-4 py-2 rounded-xl text-sm font-medium
-    shadow-lg
-    transition-transform duration-100
-    active:scale-95 active:bg-black
-    touch-manipulation
-  "
-      >
-        ← Back
-      </button>
-      <button
-        onClick={exportImage}
-        className="
-    pointer-events-auto
-    absolute top-4 right-4
-    bg-black/80 text-white
-    px-4 py-2 rounded-xl text-sm font-medium
-    shadow-lg
-    transition-transform duration-100
-    active:scale-95 active:bg-black
-    touch-manipulation
-  "
-      >
-        Download
-      </button>
+      <div className="fixed inset-0 z-50 pointer-events-none">
+        {/* Back button */}
+        <button
+          onClick={() => router.back()}
+          className="
+      pointer-events-auto
+      absolute top-4 left-4
+      bg-black/70 text-white
+      px-3 py-2 rounded-lg text-sm
+    "
+        >
+          ← Back
+        </button>
+
+        {/* Download button */}
+        <button
+          onClick={exportImage}
+          className="
+      pointer-events-auto
+      absolute top-4 right-4
+      bg-black/80 text-white
+      px-3 py-2 rounded-lg text-sm
+    "
+        >
+          Download Image
+        </button>
+
+        {/* Delete button (bottom) */}
+        <button
+          onClick={deletePhoto}
+          className="
+      pointer-events-auto
+      absolute bottom-4 left-1/2 -translate-x-1/2
+      w-[90%] max-w-md
+      py-3 rounded-xl
+      bg-red-600 text-white text-sm font-semibold
+      active:bg-red-700
+    "
+        >
+          Delete Photo
+        </button>
+      </div>
 
       <div className="relative">
         {photo && (
@@ -363,15 +375,6 @@ export default function PhotoPage() {
             </button>
           </div>
         )}
-      </div>
-      <div className="absolute bottom-0 left-0 right-0 p-4">
-        <button
-          onClick={deletePhoto}
-          className="
-          w-full py-3 rounded-xl bg-red-600 text-white text-sm font-semibold active:bg-red-700"
-        >
-          Delete Photo
-        </button>
       </div>
     </main>
   );
