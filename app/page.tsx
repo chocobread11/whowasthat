@@ -108,38 +108,58 @@ export default function Home() {
   }
 
   return (
-    <main className="max-w-md mx-auto p-4">
-      <h1 className="text-xl font-semibold">People Memory</h1>
-      <p className="text-sm text-gray-500">Private • Stored on your device</p>
+    <main className="min-h-screen flex flex-col max-w-md mx-auto p-4">
+      {/* 🔹 CONTENT */}
+      <div className="flex-1">
+        <h1 className="text-xl font-semibold">People Memory</h1>
+        <p className="text-sm text-gray-500">Private • Stored on your device</p>
 
-      <input
-        type="file"
-        accept="image/*"
-        hidden
-        ref={inputRef}
-        onChange={handleFileChange}
-      />
+        <input
+          type="file"
+          accept="image/*"
+          hidden
+          ref={inputRef}
+          onChange={handleFileChange}
+        />
 
-      <button
-        onClick={() => inputRef.current?.click()}
-        className="mt-4 w-full rounded-xl bg-black text-white py-3"
-      >
-        + Add Photo
-      </button>
+        <button
+          onClick={() => inputRef.current?.click()}
+          className="mt-4 w-full rounded-xl bg-black text-white py-3"
+        >
+          + Add Photo
+        </button>
 
-      <div className="mt-6 grid grid-cols-3 gap-2">
-        {photos.map((photo) => (
-          <Link key={photo.id} href={`/photo/${photo.id}`}>
-            <img
-              src={URL.createObjectURL(photo.image)}
-              className="
-            aspect-square object-cover rounded
-            cursor-pointer hover:opacity-80
-          "
-            />
-          </Link>
-        ))}
+        {/* 🔹 GALLERY */}
+        <div className="mt-6 grid grid-cols-3 gap-2">
+          {photos.map((photo) => (
+            <Link key={photo.id} href={`/photo/${photo.id}`}>
+              <img
+                src={URL.createObjectURL(photo.image)}
+                className="
+                aspect-square object-cover rounded
+                cursor-pointer active:opacity-70
+              "
+              />
+            </Link>
+          ))}
+        </div>
       </div>
+
+      {/* 🔹 FOOTER (STICKS TO BOTTOM) */}
+      <footer className="mt-12 border-t pt-6 text-center text-xs text-gray-500">
+        <p>Photos never leave your device &#91;browser local storage&#93;.</p>
+        <p className="mt-2">Who Was That? — a private people-memory tool</p>
+        <p className="mt-2">
+          Built by{" "}
+          <a
+            href="https://github.com/chocobread11"
+            target="_blank"
+            className="underline underline-offset-2"
+          >
+            luqmanariffin
+          </a>
+        </p>
+      </footer>
     </main>
   );
 }

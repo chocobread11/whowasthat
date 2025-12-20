@@ -54,6 +54,28 @@ export default function PhotoPage() {
     loadPhoto();
   }, [photoId]);
 
+  function drawRoundedRect(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number
+  ) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   function handleTap(e: React.MouseEvent) {
     if (!imageRef.current) return;
 
@@ -140,6 +162,8 @@ export default function PhotoPage() {
         const fontSize = Math.max(24, canvas.width * 0.04);
         const padding = fontSize * 0.6;
         const dotRadius = fontSize * 0.4;
+        const extraBottomPadding = fontSize * 0.35;
+        const radius = fontSize * 0.45;
 
         // 🔹 Dot
         ctx.fillStyle = "white";
@@ -152,21 +176,21 @@ export default function PhotoPage() {
         const textWidth = ctx.measureText(tag.name).width;
         const textHeight = fontSize * 1.2;
 
-        // 🔹 Background
-        ctx.fillStyle = "black";
-        ctx.fillRect(
-          x - textWidth / 2 - padding,
-          y + dotRadius + padding,
-          textWidth + padding * 2,
-          textHeight
-        );
+        // 🔹 Background box (rounded)
+        const boxX = x - textWidth / 2 - padding;
+        const boxY = y + dotRadius + padding;
+        const boxWidth = textWidth + padding * 2;
+        const boxHeight = textHeight + extraBottomPadding;
 
-        // 🔹 Text
+        ctx.fillStyle = "black";
+        drawRoundedRect(ctx, boxX, boxY, boxWidth, boxHeight, radius);
+
+        // 🔹 Text (vertically centered with bottom breathing room)
         ctx.fillStyle = "white";
         ctx.fillText(
           tag.name,
           x - textWidth / 2,
-          y + dotRadius + padding + fontSize
+          boxY + fontSize + extraBottomPadding * 0.3
         );
       });
 
