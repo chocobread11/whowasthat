@@ -137,9 +137,9 @@ export default function PhotoPage() {
         const y = tag.y * canvas.height;
 
         // 🔹 Scale based on image size
-        const fontSize = Math.max(24, canvas.width * 0.02);
-        const padding = fontSize * 0.4;
-        const dotRadius = fontSize * 0.3;
+        const fontSize = Math.max(24, canvas.width * 0.06);
+        const padding = fontSize * 0.8;
+        const dotRadius = fontSize * 0.4;
 
         // 🔹 Dot
         ctx.fillStyle = "white";
@@ -198,19 +198,33 @@ export default function PhotoPage() {
     <main className="relative h-screen bg-black flex items-center justify-center">
       <button
         onClick={() => router.back()}
-        className=" absolute top-4 left-4 bg-black/70 text-white px-3 py-2 rounded-lg text-sm"
+        className="
+    pointer-events-auto
+    absolute top-4 left-4
+    bg-black/80 text-white
+    px-4 py-2 rounded-xl text-sm font-medium
+    shadow-lg
+    transition-transform duration-100
+    active:scale-95 active:bg-black
+    touch-manipulation
+  "
       >
         ← Back
       </button>
       <button
         onClick={exportImage}
         className="
-          absolute top-4 right-4
-          bg-black/80 text-white
-          px-3 py-2 rounded-lg text-sm
-        "
+    pointer-events-auto
+    absolute top-4 right-4
+    bg-black/80 text-white
+    px-4 py-2 rounded-xl text-sm font-medium
+    shadow-lg
+    transition-transform duration-100
+    active:scale-95 active:bg-black
+    touch-manipulation
+  "
       >
-        Download Image
+        Download
       </button>
 
       <div className="relative">

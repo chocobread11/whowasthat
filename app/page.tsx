@@ -6,9 +6,66 @@ import Link from "next/link";
 export default function Home() {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-
   const [photos, setPhotos] = useState<any[]>([]);
+
+  async function compressImage(
+    file: File,
+    maxSize = 1280,
+    quality = 0.75
+  ): Promise<Blob> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+
+      img.onload = () => {
+        let { width, height } = img;
+
+        // Resize logic
+        if (width > height && width > maxSize) {
+          height = Math.round((height * maxSize) / width);
+          width = maxSize;
+        } else if (height > maxSize) {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          URL.revokeObjectURL(url);
+          reject("No canvas context");
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            URL.revokeObjectURL(url);
+
+            if (!blob) {
+              reject("Compression failed (blob is null)");
+              return;
+            }
+
+            resolve(blob);
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject("Image load failed");
+      };
+
+      img.src = url;
+    });
+  }
 
   async function loadPhotos() {
     const database = await getDb();
@@ -23,15 +80,31 @@ export default function Home() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    console.log("Original size:", (file.size / 1024 / 1024).toFixed(2), "MB");
+
+    let compressedBlob: Blob;
+
+    try {
+      compressedBlob = await compressImage(file);
+    } catch (err) {
+      console.error("Compression failed:", err);
+      alert("Failed to process image");
+      return;
+    }
+
+    console.log(
+      "Compressed size:",
+      (compressedBlob.size / 1024).toFixed(1),
+      "KB"
+    );
+
     const database = await getDb();
     await database.put("photos", {
       id: crypto.randomUUID(),
-      image: file,
+      image: compressedBlob,
       createdAt: Date.now(),
     });
 
-    const url = URL.createObjectURL(file);
-    setImageUrl(url);
     loadPhotos();
   }
 
