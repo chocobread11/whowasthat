@@ -10,45 +10,6 @@ export default function Home() {
 
   const [photos, setPhotos] = useState<any[]>([]);
 
-  async function compressImage(
-    file: File,
-    maxSize = 1280,
-    quality = 0.75,
-  ): Promise<Blob> {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.src = URL.createObjectURL(file);
-
-      img.onload = () => {
-        let { width, height } = img;
-
-        // Resize logic
-        if (width > height && width > maxSize) {
-          height = (height * maxSize) / width;
-          width = maxSize;
-        } else if (height > maxSize) {
-          width = (width * maxSize) / height;
-          height = maxSize;
-        }
-
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob(
-          (blob) => {
-            resolve(blob!);
-          },
-          "image/jpeg",
-          quality,
-        );
-      };
-    });
-  }
-
   async function loadPhotos() {
     const database = await getDb();
     const allPhotos = await database.getAll("photos");
@@ -82,7 +43,6 @@ export default function Home() {
       <input
         type="file"
         accept="image/*"
-        capture="environment"
         hidden
         ref={inputRef}
         onChange={handleFileChange}

@@ -36,7 +36,7 @@ export default function PhotoPage() {
         y: number;
         name: string;
         photoId: string;
-      }) => tag.photoId === photoId,
+      }) => tag.photoId === photoId
     );
     setTags(filtered);
   }
@@ -70,7 +70,7 @@ export default function PhotoPage() {
     await database.put("tags", { ...tag, name: editName });
 
     setTags((prev) =>
-      prev.map((t) => (t.id === tag.id ? { ...t, name: editName } : t)),
+      prev.map((t) => (t.id === tag.id ? { ...t, name: editName } : t))
     );
 
     setEditingTagId(null);
@@ -102,7 +102,7 @@ export default function PhotoPage() {
         y: number;
         name: string;
         photoId: string;
-      }) => t.photoId === photoId,
+      }) => t.photoId === photoId
     );
 
     for (const tag of related) {
@@ -136,35 +136,61 @@ export default function PhotoPage() {
         const x = tag.x * canvas.width;
         const y = tag.y * canvas.height;
 
-        // Dot
+        // 🔹 Scale based on image size
+        const fontSize = Math.max(24, canvas.width * 0.02);
+        const padding = fontSize * 0.4;
+        const dotRadius = fontSize * 0.3;
+
+        // 🔹 Dot
         ctx.fillStyle = "white";
         ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Text background
-        ctx.font = "16px sans-serif";
-        const padding = 6;
+        // 🔹 Text
+        ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
         const textWidth = ctx.measureText(tag.name).width;
+        const textHeight = fontSize * 1.2;
 
+        // 🔹 Background
         ctx.fillStyle = "black";
         ctx.fillRect(
           x - textWidth / 2 - padding,
-          y + 10,
+          y + dotRadius + padding,
           textWidth + padding * 2,
-          24,
+          textHeight
         );
 
-        // Text
+        // 🔹 Text
         ctx.fillStyle = "white";
-        ctx.fillText(tag.name, x - textWidth / 2, y + 28);
+        ctx.fillText(
+          tag.name,
+          x - textWidth / 2,
+          y + dotRadius + padding + fontSize
+        );
       });
 
       // Download
-      const link = document.createElement("a");
-      link.download = "people-memory.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+
+        const file = new File([blob], "people-memory.png", {
+          type: "image/png",
+        });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "People Memory",
+          });
+        } else {
+          // fallback to download
+          const link = document.createElement("a");
+          link.download = "people-memory.png";
+          link.href = URL.createObjectURL(blob);
+          link.click();
+        }
+      });
     };
   }
 
