@@ -108,7 +108,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col max-w-md mx-auto py-8 px-4">
+    <main className="min-h-screen flex flex-col max-w-md mx-auto py-8 px-4 overscroll-behavior-y: auto;">
       {/* 🔹 CONTENT */}
       <div className="flex-1">
         <h1 className="text-xl font-semibold">People Memory</h1>
