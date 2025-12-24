@@ -165,7 +165,6 @@ export default function PhotoPage() {
       ctx.drawImage(img, 0, 0);
 
       // Draw tags
-      // Draw tags
       tags.forEach((tag) => {
         const x = tag.x * canvas.width;
         const y = tag.y * canvas.height;
@@ -192,7 +191,7 @@ export default function PhotoPage() {
         const boxY = y - boxHeight;
 
         // 🔹 Background
-        ctx.fillStyle = "black";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // 60% opacity
         drawRoundedRect(ctx, boxX, boxY, boxWidth, boxHeight, radius);
 
         // 🔹 Text (centered horizontally)
@@ -276,9 +275,9 @@ export default function PhotoPage() {
             }}
           >
             {/* 
-      Input is centered exactly on the tap position.
-      No dot is used — the placeholder itself marks the spot.
-    */}
+            Input is centered exactly on the tap position.
+            No dot is used — the placeholder itself marks the spot.
+            */}
             <input
               autoFocus
               value={name}
@@ -321,7 +320,7 @@ export default function PhotoPage() {
             }}
           >
             {editingTagId === tag.id ? (
-              <div className="flex items-center px-2 bg-black rounded px-3">
+              <div className="flex items-center bg-black rounded px-3">
                 {/* EDIT INPUT */}
                 <input
                   autoFocus
@@ -334,7 +333,7 @@ export default function PhotoPage() {
                     }
                   }}
                   onBlur={() => saveEdit(tag)}
-                  className="text-sm px-3 py-2 rounded bg-black text-white outline-none text-center"
+                  className="text-sm px-3 py-2 rounded bg-black-70 text-white outline-none text-center"
                 />
 
                 {/* DELETE BUTTON */}
