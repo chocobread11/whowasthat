@@ -108,11 +108,13 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col max-w-md mx-auto p-4">
+    <main className="min-h-screen flex flex-col max-w-md mx-auto py-8 px-4">
       {/* 🔹 CONTENT */}
       <div className="flex-1">
         <h1 className="text-xl font-semibold">People Memory</h1>
-        <p className="text-sm text-gray-500">Private • Stored on your device</p>
+        <p className="text-sm text-gray-500 mt-2">
+          Private • Stored on your device
+        </p>
 
         <input
           type="file"
@@ -128,6 +130,22 @@ export default function Home() {
         >
           + Add Photo
         </button>
+
+        {/* Empty state / Guide */}
+        {photos.length === 0 && (
+          <div className="flex flex-col mt-24 text-center text-sm text-gray-500">
+            <p className="text-base font-medium text-gray-700">
+              A simple way to remember who’s who
+            </p>
+
+            <div className="mt-6 max-h-full overflow-y-auto space-y-2">
+              <p>1. Add a photo</p>
+              <p>2. Tap on a person</p>
+              <p>3. Add their name</p>
+              <p>4. Save and share</p>
+            </div>
+          </div>
+        )}
 
         {/* 🔹 GALLERY */}
         <div className="mt-6 grid grid-cols-3 gap-2">
@@ -146,7 +164,7 @@ export default function Home() {
       </div>
 
       {/* 🔹 FOOTER (STICKS TO BOTTOM) */}
-      <footer className="mt-12 border-t pt-6 text-center text-xs text-gray-500">
+      <footer className="mt-10 border-t pt-6 text-center text-xs text-gray-500">
         <p>Photos never leave your device &#91;browser local storage&#93;.</p>
         <p className="mt-2">Who Was That? — a private people-memory tool</p>
         <p className="mt-2">

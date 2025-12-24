@@ -54,6 +54,25 @@ export default function PhotoPage() {
     loadPhoto();
   }, [photoId]);
 
+  async function saveTag() {
+    if (!name || !tap) return;
+
+    const newTag = {
+      id: crypto.randomUUID(),
+      photoId,
+      name,
+      x: tap.x,
+      y: tap.y,
+    };
+
+    const database = await getDb();
+    await database.put("tags", newTag);
+
+    setTags([...tags, newTag]);
+    setTap(null);
+    setName("");
+  }
+
   function drawRoundedRect(
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -95,14 +114,6 @@ export default function PhotoPage() {
       prev.map((t) => (t.id === tag.id ? { ...t, name: editName } : t))
     );
 
-    setEditingTagId(null);
-  }
-
-  async function deleteTag(tagId: string) {
-    const database = await getDb();
-    await database.delete("tags", tagId);
-
-    setTags((prev) => prev.filter((t) => t.id !== tagId));
     setEditingTagId(null);
   }
 
@@ -154,44 +165,39 @@ export default function PhotoPage() {
       ctx.drawImage(img, 0, 0);
 
       // Draw tags
+      // Draw tags
       tags.forEach((tag) => {
         const x = tag.x * canvas.width;
         const y = tag.y * canvas.height;
 
-        // 🔹 Scale based on image size
+        // 🔹 Text style
         const fontSize = Math.max(24, canvas.width * 0.04);
-        const padding = fontSize * 0.6;
-        const dotRadius = fontSize * 0.4;
-        const extraBottomPadding = fontSize * 0.35;
+        const paddingX = fontSize * 0.6;
+        const paddingY = fontSize * 0.45;
         const radius = fontSize * 0.45;
 
-        // 🔹 Dot
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
-        ctx.fill();
-
-        // 🔹 Text
         ctx.font = `bold ${fontSize}px system-ui, sans-serif`;
+        ctx.textBaseline = "top";
+
         const textWidth = ctx.measureText(tag.name).width;
         const textHeight = fontSize * 1.2;
 
-        // 🔹 Background box (rounded)
-        const boxX = x - textWidth / 2 - padding;
-        const boxY = y + dotRadius + padding;
-        const boxWidth = textWidth + padding * 2;
-        const boxHeight = textHeight + extraBottomPadding;
+        // 🔹 Box size
+        const boxWidth = textWidth + paddingX * 2;
+        const boxHeight = textHeight + paddingY * 2;
 
+        // 🔹 Anchor logic (MATCH DOM)
+        // DOM: left: x, top: y, translate(-50%, -100%)
+        const boxX = x - boxWidth / 2;
+        const boxY = y - boxHeight;
+
+        // 🔹 Background
         ctx.fillStyle = "black";
         drawRoundedRect(ctx, boxX, boxY, boxWidth, boxHeight, radius);
 
-        // 🔹 Text (vertically centered with bottom breathing room)
+        // 🔹 Text (centered horizontally)
         ctx.fillStyle = "white";
-        ctx.fillText(
-          tag.name,
-          x - textWidth / 2,
-          boxY + fontSize + extraBottomPadding * 0.3
-        );
+        ctx.fillText(tag.name, boxX + paddingX, boxY + paddingY);
       });
 
       // Download
@@ -219,16 +225,16 @@ export default function PhotoPage() {
   }
 
   return (
-    <main className="relative h-screen bg-black flex items-center justify-center">
-      <div className="fixed inset-0 z-50 pointer-events-none">
+    <main className="relative h-screen bg-black flex flex-col items-center justify-between">
+      <div className="relative h-16 w-full flex justify-between px-4">
         {/* Back button */}
         <button
           onClick={() => router.back()}
           className="
-      pointer-events-auto
+      pointer-events-auto w-24
       absolute top-4 left-4
-      bg-black/70 text-white
-      px-3 py-2 rounded-lg text-sm
+      bg-black/70 text-white 
+      px-3 py-2 rounded-lg text-sm font-semibold
     "
         >
           ← Back
@@ -237,33 +243,18 @@ export default function PhotoPage() {
         {/* Download button */}
         <button
           onClick={exportImage}
-          className="
+          className=" w-24
       pointer-events-auto
       absolute top-4 right-4
       bg-black/80 text-white
-      px-3 py-2 rounded-lg text-sm
+      px-3 py-2 rounded-lg text-sm font-semibold
     "
         >
-          Download Image
-        </button>
-
-        {/* Delete button (bottom) */}
-        <button
-          onClick={deletePhoto}
-          className="
-      pointer-events-auto
-      absolute bottom-4 left-1/2 -translate-x-1/2
-      w-[90%] max-w-md
-      py-3 rounded-xl
-      bg-red-600 text-white text-sm font-semibold
-      active:bg-red-700
-    "
-        >
-          Delete Photo
+          Download
         </button>
       </div>
 
-      <div className="relative">
+      <div className="relative overflow-hidden">
         {photo && (
           <img
             ref={imageRef}
@@ -272,11 +263,53 @@ export default function PhotoPage() {
             className="max-w-full max-h-full cursor-crosshair"
           />
         )}
-
+        {tap && (
+          <div
+            className="
+        absolute
+       -translate-x-1/2
+      -translate-y-full
+    "
+            style={{
+              left: `${tap.x * 100}%`,
+              top: `${tap.y * 100}%`,
+            }}
+          >
+            {/* 
+      Input is centered exactly on the tap position.
+      No dot is used — the placeholder itself marks the spot.
+    */}
+            <input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault(); // prevent form submit / newline
+                  saveTag(); // ← Enter saves
+                }
+              }}
+              placeholder="Who is this?"
+              className="
+        px-3 py-2
+        rounded-lg
+        text-sm
+        text-white
+        shadow
+        placeholder-white
+        bg-black/70
+        focus:outline-none
+        pointer-events-auto
+        text-center
+      "
+            />
+          </div>
+        )}
         {tags.map((tag) => (
           <div
             key={tag.id}
-            className="absolute touch-none"
+            className="absolute 
+          -translate-x-1/2 -translate-y-full touch-none"
             style={{
               left: `${tag.x * 100}%`,
               top: `${tag.y * 100}%`,
@@ -288,7 +321,7 @@ export default function PhotoPage() {
             }}
           >
             {editingTagId === tag.id ? (
-              <div className="flex items-center gap-1 bg-black rounded px-3">
+              <div className="flex items-center px-2 bg-black rounded px-3">
                 {/* EDIT INPUT */}
                 <input
                   autoFocus
@@ -301,7 +334,7 @@ export default function PhotoPage() {
                     }
                   }}
                   onBlur={() => saveEdit(tag)}
-                  className="text-sm px-3 py-2 rounded bg-black text-white outline-none"
+                  className="text-sm px-3 py-2 rounded bg-black text-white outline-none text-center"
                 />
 
                 {/* DELETE BUTTON */}
@@ -354,51 +387,23 @@ export default function PhotoPage() {
             )}
           </div>
         ))}
+      </div>
 
-        {tap && (
-          <div
-            className="absolute"
-            style={{
-              left: `${tap.x * 100}%`,
-              top: `${tap.y * 100}%`,
-            }}
-          >
-            <div className="w-4 h-4 bg-white rounded-full mb-2 border-2 border-black" />
-
-            <input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Who is this?"
-              className="px-3 py-2 rounded-lg text-sm text-white shadow placeholder-white bg-black/70 focus:outline-none"
-            />
-
-            <button
-              onClick={async () => {
-                if (!name || !tap) return;
-
-                const newTag = {
-                  id: crypto.randomUUID(),
-                  photoId,
-                  name,
-                  x: tap.x,
-                  y: tap.y,
-                };
-
-                const database = await getDb();
-                await database.put("tags", newTag);
-
-                setTags([...tags, newTag]);
-                setTap(null);
-                setName("");
-              }}
-              className="mt-2 ml-2 px-3 py-2 bg-black text-white rounded-lg text-sm"
-            >
-              {" "}
-              Save
-            </button>
-          </div>
-        )}
+      <div className="relative h-16 w-full flex justify-between px-4 my-4">
+        {/* Delete button (bottom) */}
+        <button
+          onClick={deletePhoto}
+          className="
+    pointer-events-auto
+      absolute bottom-4 left-1/2 -translate-x-1/2
+      w-[90%] max-w-md
+      py-3 rounded-xl
+      bg-red-500 text-white text-sm font-semibold
+      active:bg-red-700
+    "
+        >
+          Delete Photo ✕
+        </button>
       </div>
     </main>
   );
