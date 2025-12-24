@@ -72,7 +72,6 @@ export default function PhotoPage() {
     setTap(null);
     setName("");
   }
-
   function drawRoundedRect(
     ctx: CanvasRenderingContext2D,
     x: number,
@@ -193,7 +192,6 @@ export default function PhotoPage() {
         // 🔹 Background
         ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // 60% opacity
         drawRoundedRect(ctx, boxX, boxY, boxWidth, boxHeight, radius);
-
         // 🔹 Text (centered horizontally)
         ctx.fillStyle = "white";
         ctx.fillText(tag.name, boxX + paddingX, boxY + paddingY);
@@ -230,11 +228,10 @@ export default function PhotoPage() {
         <button
           onClick={() => router.back()}
           className="
-      pointer-events-auto w-24
-      absolute top-4 left-4
-      bg-black/70 text-white 
-      px-3 py-2 rounded-lg text-sm font-semibold
-    "
+          pointer-events-auto w-24
+          absolute top-4 left-4
+          bg-black/70 text-white 
+          px-3 py-2 rounded-lg text-sm font-semibold"
         >
           ← Back
         </button>
@@ -243,11 +240,10 @@ export default function PhotoPage() {
         <button
           onClick={exportImage}
           className=" w-24
-      pointer-events-auto
-      absolute top-4 right-4
-      bg-black/80 text-white
-      px-3 py-2 rounded-lg text-sm font-semibold
-    "
+          pointer-events-auto
+          absolute top-4 right-4
+          bg-black/80 text-white
+          px-3 py-2 rounded-lg text-sm font-semibold"
         >
           Download
         </button>
@@ -265,19 +261,14 @@ export default function PhotoPage() {
         {tap && (
           <div
             className="
-        absolute
-       -translate-x-1/2
-      -translate-y-full
-    "
+            absolute -translate-x-1/2 -translate-y-full"
             style={{
               left: `${tap.x * 100}%`,
               top: `${tap.y * 100}%`,
             }}
           >
             {/* 
-            Input is centered exactly on the tap position.
-            No dot is used — the placeholder itself marks the spot.
-            */}
+            Input is centered exactly on the tap position.*/}
             <input
               autoFocus
               value={name}
@@ -290,25 +281,24 @@ export default function PhotoPage() {
               }}
               placeholder="Who is this?"
               className="
-        px-3 py-2
-        rounded-lg
-        text-sm
-        text-white
-        shadow
-        placeholder-white
-        bg-black/70
-        focus:outline-none
-        pointer-events-auto
-        text-center
-      "
+              px-3 py-2
+              rounded-lg
+              text-sm
+              text-white
+              shadow
+              placeholder-white
+              bg-black/70
+              focus:outline-none
+              pointer-events-auto
+              text-center"
             />
           </div>
         )}
         {tags.map((tag) => (
           <div
             key={tag.id}
-            className="absolute 
-          -translate-x-1/2 -translate-y-full touch-none"
+            className="
+             absolute -translate-x-1/2 -translate-y-full touch-none"
             style={{
               left: `${tag.x * 100}%`,
               top: `${tag.y * 100}%`,
@@ -389,17 +379,16 @@ export default function PhotoPage() {
       </div>
 
       <div className="relative h-16 w-full flex justify-between px-4 my-4">
-        {/* Delete button (bottom) */}
+        {/* Delete button bottom*/}
         <button
           onClick={deletePhoto}
           className="
-    pointer-events-auto
-      absolute bottom-4 left-1/2 -translate-x-1/2
-      w-[90%] max-w-md
-      py-3 rounded-xl
-      bg-red-500 text-white text-sm font-semibold
-      active:bg-red-700
-    "
+          pointer-events-auto
+          absolute bottom-4 left-1/2 -translate-x-1/2
+          w-[90%] max-w-md
+          py-3 rounded-xl
+          bg-red-500 text-white text-sm font-semibold
+          active:bg-red-700"
         >
           Delete Photo ✕
         </button>
